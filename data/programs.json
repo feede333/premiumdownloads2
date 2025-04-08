@@ -47,6 +47,22 @@
         "disk": "v",
         "display": "v"
       }
+    },
+    {
+      "id": "fvbefdrb",
+      "title": "dfbdfb",
+      "category": "bfdbfdbf",
+      "fileSize": "bfdb",
+      "date": "08.04.2025",
+      "image": "images/default.png",
+      "description": "fbb",
+      "requirements": {
+        "os": "b",
+        "processor": "bbbbb",
+        "ram": "b",
+        "disk": "bbb",
+        "display": "b"
+      }
     }
   ]
 }
