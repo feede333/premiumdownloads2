@@ -24,12 +24,11 @@ class AIChat {
         this.statusIndicator.className = 'connection-status';
         this.container.insertBefore(this.statusIndicator, this.messages);
         
+        // Primero verificamos la conexión
+        this.checkConnection();
+        
         this.setupEventListeners();
         this.setupConversations();
-        this.setupWebSocket();
-        
-        // Verificar la conexión real
-        this.checkConnection();
     }
 
     setupEventListeners() {
@@ -284,13 +283,19 @@ class AIChat {
     
     async checkConnection() {
         try {
+            // Intentar enviar un mensaje de prueba
             const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-                method: 'HEAD',
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.apiKey}`
-                }
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [{ role: 'system', content: 'test' }]
+                })
             });
-            
+
             if (response.ok) {
                 this.updateConnectionStatus(true);
             } else {
