@@ -31,6 +31,22 @@
         "disk": "a",
         "display": "a"
       }
+    },
+    {
+      "id": "ñ",
+      "title": "ñ",
+      "category": "ñ",
+      "fileSize": "ñ",
+      "date": "08.04.2025",
+      "image": "images/default.png",
+      "description": "ñ",
+      "requirements": {
+        "os": "ñ",
+        "processor": "ñ",
+        "ram": "ñ",
+        "disk": "ñ",
+        "display": "ñ"
+      }
     }
   ]
 }
