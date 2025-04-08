@@ -15,6 +15,22 @@
         "disk": "fvfv",
         "display": "fvfv"
       }
+    },
+    {
+      "id": "gg",
+      "title": "g",
+      "category": "gg",
+      "fileSize": "g",
+      "date": "08.04.2025",
+      "image": "images/default.png",
+      "description": "g",
+      "requirements": {
+        "os": "g",
+        "processor": "g",
+        "ram": "g",
+        "disk": "g",
+        "display": "g"
+      }
     }
   ]
 }
