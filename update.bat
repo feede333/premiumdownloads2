@@ -1,15 +1,23 @@
+REM filepath: c:\Users\Federico\Downloads\downloads site\premiumdownloads2\update.bat
 @echo off
 echo Actualizando repositorio...
 
-git add .
-git commit -m "Update: %date% %time%"
+REM Forzar actualización del índice de git
+git update-index --refresh
 
+echo Verificando cambios...
+git status
+
+echo.
+echo Subiendo cambios...
+git add -A
+git commit -m "Update: %date% %time%"
 git push origin main
+
 if %errorlevel% equ 0 (
     echo.
     echo Cambios subidos exitosamente!
     timeout /t 2 >nul
-    exit
 ) else (
     echo.
     echo Hubo un error al subir los cambios.
