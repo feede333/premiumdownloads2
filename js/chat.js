@@ -29,6 +29,9 @@ class AIChat {
         
         this.setupEventListeners();
         this.setupConversations();
+        
+        // Verificar conexión inmediatamente
+        this.checkConnectionPeriodically();
     }
 
     setupEventListeners() {
@@ -304,6 +307,29 @@ class AIChat {
         } catch (error) {
             this.updateConnectionStatus(false);
         }
+    }
+
+    async checkConnectionPeriodically() {
+        // Verificar conexión cada 30 segundos
+        const checkConnection = async () => {
+            try {
+                const response = await fetch(this.apiEndpoint, {
+                    method: 'HEAD',
+                    headers: {
+                        'Authorization': `Bearer ${this.apiKey}`
+                    }
+                });
+                this.updateConnectionStatus(response.ok);
+            } catch (error) {
+                this.updateConnectionStatus(false);
+            }
+        };
+
+        // Verificar inmediatamente
+        await checkConnection();
+        
+        // Seguir verificando cada 30 segundos
+        setInterval(checkConnection, 30000);
     }
 
     updateConnectionStatus(isConnected) {
