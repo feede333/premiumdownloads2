@@ -1,13 +1,17 @@
 async function loadPrograms() {
     try {
-        console.log('Intentando cargar programas...');
-        // Ruta absoluta para GitHub Pages
-        const response = await fetch('/premiumdownloads2/data/programs.json');
+        console.log('Intentando cargar programas...'); // Debug
+        
+        // Usar ruta relativa
+        const response = await fetch('./data/programs.json');
+        console.log('Response status:', response.status); // Debug
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const data = await response.json();
-        console.log('Datos cargados:', data);
+        console.log('Datos cargados:', data); // Debug
 
         const programsGrid = document.getElementById('programsGrid');
         if (!programsGrid) {
@@ -21,12 +25,9 @@ async function loadPrograms() {
             const programCard = document.createElement('div');
             programCard.className = 'program-card';
             
-            // Usar rutas absolutas para GitHub Pages
-            const imagePath = program.image.startsWith('/') ? program.image : `/premiumdownloads2/${program.image}`;
-            
             programCard.innerHTML = `
-                <a href="/premiumdownloads2/detail.html?id=${program.id}">
-                    <img src="${imagePath}" alt="${program.title}">
+                <a href="detail.html?id=${program.id}">
+                    <img src="${program.image}" alt="${program.title}">
                     <div class="program-info">
                         <h3>${program.title}</h3>
                         <span class="category">${program.category}</span>
@@ -49,4 +50,7 @@ async function loadPrograms() {
 }
 
 // Cargar programas cuando el documento esté listo
-document.addEventListener('DOMContentLoaded', loadPrograms);
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM cargado, iniciando carga de programas...'); // Debug
+    loadPrograms();
+});
