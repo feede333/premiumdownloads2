@@ -105,7 +105,8 @@ class ProgramManagerApp:
             image_filename = f"{data['id']}{os.path.splitext(self.image_path)[1]}"
             image_dest = os.path.join(images_dir, image_filename)
             shutil.copy2(self.image_path, image_dest)
-            data["image"] = f"frontend/public/images/{image_filename}"
+            # Usar ruta relativa desde la raíz del sitio
+            data["image"] = f"images/{image_filename}"  # Removido frontend/public/
 
         # Cargar JSON existente
         json_path = os.path.join(data_dir, "programs.json")
