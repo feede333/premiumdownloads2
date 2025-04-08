@@ -27,6 +27,9 @@ class AIChat {
         this.setupEventListeners();
         this.setupConversations();
         this.setupWebSocket();
+        
+        // Verificar la conexión real
+        this.checkConnection();
     }
 
     setupEventListeners() {
@@ -164,9 +167,13 @@ class AIChat {
                     this.loadConversations();
                 }
             }
+            
+            // Actualizar estado si el envío es exitoso
+            this.updateConnectionStatus(true);
 
         } catch (error) {
             console.error('Error:', error);
+            this.updateConnectionStatus(false);
             this.addMessage('AI', 'Lo siento, hubo un error al procesar tu mensaje.', 'bot error');
         }
     }
@@ -273,6 +280,30 @@ class AIChat {
             console.error('Error al configurar WebSocket:', error);
             this.statusIndicator.textContent = '🔴 Error de conexión';
         }
+    }
+    
+    async checkConnection() {
+        try {
+            const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'HEAD',
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`
+                }
+            });
+            
+            if (response.ok) {
+                this.updateConnectionStatus(true);
+            } else {
+                this.updateConnectionStatus(false);
+            }
+        } catch (error) {
+            this.updateConnectionStatus(false);
+        }
+    }
+
+    updateConnectionStatus(isConnected) {
+        this.statusIndicator.textContent = isConnected ? '🟢 Conectado' : '🔴 Desconectado';
+        this.statusIndicator.className = `connection-status ${isConnected ? 'connected' : ''}`;
     }
 }
 
