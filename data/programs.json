@@ -1,0 +1,20 @@
+{
+  "programs": [
+    {
+      "id": "s",
+      "title": "s",
+      "category": "s",
+      "fileSize": "s",
+      "date": "08.04.2025",
+      "image": "images/default.png",
+      "description": "s",
+      "requirements": {
+        "os": "s",
+        "processor": "s",
+        "ram": "s",
+        "disk": "s",
+        "display": "s"
+      }
+    }
+  ]
+}
