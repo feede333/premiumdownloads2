@@ -15,6 +15,22 @@
         "disk": "s",
         "display": "s"
       }
+    },
+    {
+      "id": "aa",
+      "title": "a",
+      "category": "a",
+      "fileSize": "a",
+      "date": "08.04.2025",
+      "image": "images/default.png",
+      "description": "a",
+      "requirements": {
+        "os": "a",
+        "processor": "a",
+        "ram": "a",
+        "disk": "a",
+        "display": "a"
+      }
     }
   ]
 }
