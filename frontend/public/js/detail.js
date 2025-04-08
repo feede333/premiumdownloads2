@@ -403,3 +403,51 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+async function loadProgramDetails() {
+    try {
+        // Obtener el ID del programa de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const programId = urlParams.get('id');
+
+        if (!programId) {
+            throw new Error('ID del programa no especificado');
+        }
+
+        const response = await fetch('./data/programs.json');
+        if (!response.ok) {
+            throw new Error('No se pudo cargar el archivo JSON');
+        }
+        
+        const data = await response.json();
+        const program = data.programs.find(p => p.id === programId);
+
+        if (!program) {
+            throw new Error('Programa no encontrado');
+        }
+
+        // Actualizar el contenido de la página
+        document.title = `${program.title} - Descarga | PremiumDownloads`;
+        document.querySelector('.download-image img').src = program.image;
+        document.querySelector('.download-title').textContent = program.title;
+        document.querySelector('.download-category').textContent = program.category;
+        document.querySelector('.file-size').textContent = program.fileSize;
+        document.querySelector('.file-date').textContent = program.date;
+        document.querySelector('.download-description').innerHTML = 
+            `<p>${program.description}</p>`;
+        
+        // Actualizar requisitos
+        const reqList = document.querySelector('.requirements ul');
+        reqList.innerHTML = `
+            <li>Sistema operativo: ${program.requirements.os}</li>
+            <li>Procesador: ${program.requirements.processor}</li>
+            <li>RAM: ${program.requirements.ram}</li>
+            <li>Espacio en disco: ${program.requirements.disk}</li>
+            <li>Pantalla: ${program.requirements.display}</li>
+        `;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadProgramDetails);
