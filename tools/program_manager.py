@@ -91,20 +91,21 @@ class ProgramManagerApp:
             messagebox.showerror("Error", "Los campos ID, título y categoría son obligatorios")
             return
 
-        # Crear directorios si no existen
+        # Modificar las rutas para GitHub Pages
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        images_dir = os.path.join(base_dir, "..", "frontend", "public", "images")
-        data_dir = os.path.join(base_dir, "..", "frontend", "public", "data")
+        repo_dir = os.path.dirname(os.path.dirname(base_dir))
+        images_dir = os.path.join(repo_dir, "frontend", "public", "images")
+        data_dir = os.path.join(repo_dir, "frontend", "public", "data")
         
         os.makedirs(images_dir, exist_ok=True)
         os.makedirs(data_dir, exist_ok=True)
 
-        # Copiar imagen si fue seleccionada
+        # Modificar la ruta de la imagen para GitHub Pages
         if hasattr(self, 'image_path') and self.image_path:
             image_filename = f"{data['id']}{os.path.splitext(self.image_path)[1]}"
             image_dest = os.path.join(images_dir, image_filename)
             shutil.copy2(self.image_path, image_dest)
-            data["image"] = f"images/{image_filename}"
+            data["image"] = f"frontend/public/images/{image_filename}"
 
         # Cargar JSON existente
         json_path = os.path.join(data_dir, "programs.json")
