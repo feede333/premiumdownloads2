@@ -92,37 +92,24 @@ class ProgramManagerApp:
                 messagebox.showerror("Error", "Los campos ID, título y categoría son obligatorios")
                 return
 
-            # Modificar las rutas para asegurar la ubicación correcta
+            # Modificar las rutas para GitHub Pages
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            print(f"Base dir: {base_dir}")  # Debug
-
-            # Subir un nivel para llegar a la raíz del proyecto
             repo_dir = os.path.dirname(os.path.dirname(base_dir))
-            print(f"Repo dir: {repo_dir}")  # Debug
-
-            # Definir rutas correctas
-            frontend_dir = os.path.join(repo_dir, "frontend", "public")
-            images_dir = os.path.join(frontend_dir, "images")
-            data_dir = os.path.join(frontend_dir, "data")
             
-            print(f"Images dir: {images_dir}")  # Debug
-            print(f"Data dir: {data_dir}")  # Debug
-
+            # Las rutas deben ser relativas a la raíz del repositorio
+            data_dir = os.path.join(repo_dir, "data")
+            images_dir = os.path.join(repo_dir, "images")
+            
             # Crear directorios si no existen
-            os.makedirs(images_dir, exist_ok=True)
             os.makedirs(data_dir, exist_ok=True)
-
-            # Verificar que los directorios se crearon
-            print(f"Images dir exists: {os.path.exists(images_dir)}")
-            print(f"Data dir exists: {os.path.exists(data_dir)}")
+            os.makedirs(images_dir, exist_ok=True)
 
             # Copiar imagen
             if hasattr(self, 'image_path') and self.image_path:
                 image_filename = f"{data['id']}{os.path.splitext(self.image_path)[1]}"
                 image_dest = os.path.join(images_dir, image_filename)
-                print(f"Copying image to: {image_dest}")  # Debug
                 shutil.copy2(self.image_path, image_dest)
-                data["image"] = f"images/{image_filename}"
+                data["image"] = f"/premiumdownloads2/images/{image_filename}"  # Ruta para GitHub Pages
 
             # Guardar JSON
             json_path = os.path.join(data_dir, "programs.json")
@@ -165,16 +152,88 @@ class ProgramManagerApp:
 
             messagebox.showinfo("Éxito", "Programa guardado correctamente")
             
-            # Ejecutar git status para ver cambios
+            # Actualizar repositorio
+            print("\nActualizando repositorio...")
             import subprocess
-            result = subprocess.run(['git', 'status'], 
-                                  cwd=repo_dir, 
-                                  capture_output=True, 
-                                  text=True)
-            print("\nGit status:")
-            print(result.stdout)
 
-            self.root.quit()
+            # Guardar cambios JSON actuales
+            backup_json = None
+            if os.path.exists(json_path):
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    backup_json = f.read()
+
+            try:
+                # Forzar sincronización con remoto
+                print("Sincronizando con remoto...")
+                subprocess.run(['git', 'fetch', 'origin'], cwd=repo_dir, check=True)
+                subprocess.run(['git', 'reset', '--hard', 'origin/main'], cwd=repo_dir, check=True)
+                subprocess.run(['git', 'pull', 'origin', 'main'], cwd=repo_dir, check=True)
+
+                # Restaurar JSON con los nuevos cambios
+                if backup_json:
+                    current_json = json.loads(backup_json)
+                    try:
+                        with open(json_path, 'r', encoding='utf-8') as f:
+                            remote_json = json.load(f)
+                    except FileNotFoundError:
+                        remote_json = {"programs": []}
+
+                    # Combinar programas
+                    existing_ids = {prog["id"] for prog in remote_json["programs"]}
+                    for prog in current_json["programs"]:
+                        if prog["id"] not in existing_ids:
+                            remote_json["programs"].append(prog)
+
+                    # Guardar JSON combinado
+                    with open(json_path, 'w', encoding='utf-8') as f:
+                        json.dump(remote_json, f, indent=2, ensure_ascii=False)
+
+                # Agregar y subir cambios
+                print("Subiendo cambios...")
+                subprocess.run(['git', 'add', 'data/programs.json'], 
+                             cwd=repo_dir, check=True)
+                
+                if hasattr(self, 'image_path'):
+                    subprocess.run(['git', 'add', 'images/*'], 
+                                 cwd=repo_dir, check=True)
+                
+                subprocess.run(['git', 'commit', '-m', f'Update: Nuevo programa {data["title"]}'],
+                             cwd=repo_dir, check=True)
+                
+                subprocess.run(['git', 'push', 'origin', 'main'],
+                             cwd=repo_dir, check=True)
+                
+                print("Repositorio actualizado exitosamente")
+                messagebox.showinfo("Éxito", "Programa guardado y sincronizado correctamente")
+                self.root.quit()
+
+            except subprocess.CalledProcessError as git_error:
+                print(f"Error en Git: {str(git_error)}")
+                
+                # Restaurar backup si algo falló
+                if backup_json:
+                    with open(json_path, 'w', encoding='utf-8') as f:
+                        f.write(backup_json)
+                
+                raise git_error
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            messagebox.showerror("Error", 
+                "No se pudo actualizar el repositorio.\n" +
+                "Tus cambios están guardados localmente pero deberás sincronizar manualmente.")
+            
+            # Mostrar estado actual
+            try:
+                status = subprocess.run(['git', 'status'], 
+                                     cwd=repo_dir, 
+                                     capture_output=True, 
+                                     text=True)
+                print("\nEstado del repositorio:")
+                print(status.stdout)
+            except Exception as git_status_error:
+                print(f"Error al obtener estado de git: {str(git_status_error)}")
+                pass
 
         except Exception as e:
             print(f"Error: {str(e)}")
@@ -184,35 +243,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ProgramManagerApp(root)
     root.mainloop()
-
-# Archivo batch para actualizar el repositorio
-batch_file_content = """@echo off
-echo Actualizando repositorio...
-
-REM Forzar actualización del índice de git
-git update-index --refresh
-
-echo Verificando cambios...
-git status
-
-echo.
-echo Subiendo cambios...
-git add -A
-git commit -m "Update: %date% %time%"
-git push origin main
-
-if %errorlevel% equ 0 (
-    echo.
-    echo Cambios subidos exitosamente!
-    timeout /t 2 >nul
-) else (
-    echo.
-    echo Hubo un error al subir los cambios.
-    echo Presiona cualquier tecla para cerrar...
-    pause >nul
-)
-"""
-
-batch_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "update.bat")
-with open(batch_file_path, "w") as batch_file:
-    batch_file.write(batch_file_content)

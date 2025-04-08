@@ -9,6 +9,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="./js/main.js" defer></script>
     <script src="js/chat.js" defer></script>
+    <script>
+        async function loadPrograms() {
+            try {
+                const response = await fetch('/premiumdownloads2/data/programs.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log('Datos cargados:', data); // Debug
+
+                const programsGrid = document.getElementById('programsGrid');
+                data.programs.forEach(program => {
+                    const programCard = document.createElement('div');
+                    programCard.className = 'program-card';
+                    programCard.innerHTML = `
+                        <a href="/premiumdownloads2/detail.html?id=${program.id}">
+                            <img src="${program.image}" alt="${program.title}">
+                            <h3>${program.title}</h3>
+                            <span class="category">${program.category}</span>
+                        </a>
+                    `;
+                    programsGrid.appendChild(programCard);
+                });
+            } catch (error) {
+                console.error('Error cargando programas:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadPrograms);
+    </script>
 </head>
 <body>
     <header>
@@ -72,7 +102,7 @@
             </aside>
 
             <main class="main-content">
-                <div class="download-grid">
+                <div class="download-grid" id="programsGrid">
                     <!-- Card 1 -->
                     <div class="download-card">
                         <div class="card-image">
